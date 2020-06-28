@@ -1,10 +1,15 @@
 #include <Wire.h> 
 #include <LiquidCrystal_I2C.h>
+#include "RTClib.h"
 
 // Set the LCD address to 0x27 for a 16 chars and 2 line display
 LiquidCrystal_I2C lcd(0x27, 16, 2);
 
-// Set buttons to pin 
+// Real-time Clock
+RTC_DS3231 rtc;
+
+/// Set pins
+// buttons  
 const int selectButton = 7;
 const int upButton = 6;
 const int downButton = 5;
@@ -36,36 +41,60 @@ bool resistToCall_showAll = true;
 // lcd back light
 bool lcdBacklight = true;
 
-
+// screenDateTimeView
+// bool screenDateTimeView = true;
+bool screenDateTimeView = false;
 
 void setup() {
+  Serial.begin(9600);
+  
+  // Buttons
   pinMode(upButton, INPUT_PULLUP);
   pinMode(downButton, INPUT_PULLUP);
   pinMode(selectButton, INPUT_PULLUP);
   pinMode(waterSupplyButton, INPUT_PULLUP);
   
-  Serial.begin(9600);
+  // Real-time 
+  delay(3000); // wait for console opening
+  if (! rtc.begin()) {
+    Serial.println("Couldn't find RTC");
+    while (1);
+  }
 
+  if (rtc.lostPower()) {
+    Serial.println("RTC lost power, lets set the time!");
+  
+    // Following line sets the RTC to the date & time this sketch was compiled
+    rtc.adjust(DateTime(F(__DATE__), F(__TIME__)));
+    // initialize the LCD
+    lcd.begin();
+    // Turn on the blacklight and print a message.
+    lcd.backlight();
+  }
+
+  // LCD
   lcd.begin();   // initializing the LCD
   lcd.backlight(); // Enable or Turn On the backlight
   lcd.createChar(0, arrow); //We create the data to be sent later using lcd.write
   lcd.createChar(1, back);
   lcd.createChar(2, arroLeft);
 
+  // Display TradeMark
   lcd.setCursor(0,0);
-  lcd.print("Date");
-  lcd.setCursor(0,1);
-  lcd.print("Time");
-  delay(1000);
+  lcd.print("Bin Hanif Inc,");
+  delay(3000);
   lcd.clear();
-
-  updateMainMenu();
-  int time = 0;
 }
 
 void loop() 
 {
- 
+  // True: 07:00 AM(Morning)
+  DateTime now = rtc.now();
+
+  if(screenDateTimeView == true){
+    openScreenView(now);
+  }
+
   // Down/Left Button
   if(!digitalRead(downButton)){
     if (supplyWaterGate == true){
@@ -122,6 +151,7 @@ void loop()
 
   // Main menu/execution
   if (!digitalRead(selectButton)){
+    screenDateTimeView = false;
     if(supplyWaterGate == true && supplyWaterCounter == 1){
         executeWaterSupplyAction();
         supplyWaterGate = false;
@@ -133,6 +163,7 @@ void loop()
         supplyWaterGate = false;
         lcd.clear();
         Serial.print("yes");
+        // screenDateTimeView = true;
         // updateMainMenu();
     }
     if (menuCounter == 2){
@@ -173,13 +204,39 @@ void loop()
 
   // Water supply button
   if(!digitalRead(waterSupplyButton)){ 
-    supplyWaterGate = true;
     updateWaterSupplyMenu();
     delay(300);
     while (!digitalRead(waterSupplyButton));
     // updateMainMenu();
   }
 }
+
+void openScreenView(DateTime that){
+  // Date
+  lcd.setCursor(0,0);
+  lcd.print(that.year());
+  lcd.print("/");
+  lcd.print(that.month());
+  lcd.print("/");
+  lcd.print(that.day());
+ 
+  // Time
+  lcd.setCursor(0,1);
+  lcd.print(that.hour());
+  lcd.print(":");
+  lcd.print(that.minute());
+  lcd.print(":");
+  lcd.print(that.second());
+  if(that.isPM()==0) {
+    lcd.print(" ");
+    lcd.print("PM");
+  }
+  else{
+    lcd.print(" ");
+    lcd.print("AM");
+  }
+}
+
 
 void updateMainMenu() {
   switch (menuCounter) {
@@ -344,10 +401,9 @@ void executeWaterSupplyAction(){
 void backToMainMenu(){
   updateMainMenu();
 }
+
+
 /////////////////////////// Functions
-
-
-
 void showAll() {
   lcd.clear();
   lcd.print("Show all");
@@ -389,4 +445,5 @@ void waterSupply(){
     lcd.print("Only __ secs");
     delay(5000);
     lcd.clear();
+    // screenDateTimeView == true;
 }
