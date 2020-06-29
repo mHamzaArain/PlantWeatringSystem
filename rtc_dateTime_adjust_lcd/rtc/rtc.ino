@@ -1,3 +1,6 @@
+// Cradit: https://simple-circuit.com/arduino-ds1307-lcd-set-button/
+
+
 #include <Wire.h> 
 #include <LiquidCrystal_I2C.h>
 #include "RTClib.h"
