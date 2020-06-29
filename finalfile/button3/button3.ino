@@ -42,8 +42,8 @@ bool resistToCall_showAll = true;
 bool lcdBacklight = true;
 
 // screenDateTimeView
-// bool screenDateTimeView = true;
-bool screenDateTimeView = false;
+bool screenDateTimeView = true;
+// bool screenDateTimeView = false;
 
 void setup() {
   Serial.begin(9600);
@@ -112,12 +112,6 @@ void loop()
         updateSubmenu();
     }
 
-    Serial.print("SubMenuCounter > "); Serial.println(subMenuCounter);
-    Serial.print("menuGate > "); Serial.println(menuGate);
-    Serial.print("menuCounter > "); Serial.println(menuCounter);
-    Serial.print("subMenuGate > "); Serial.println(subMenuGate);
-    Serial.println();
-
     delay(300);
     while (!digitalRead(downButton));
   }
@@ -139,12 +133,6 @@ void loop()
         updateSubmenu();
     }
 
-    Serial.print("SubMenuCounter > "); Serial.println(subMenuCounter);
-    Serial.print("menuGate > "); Serial.println(menuGate);
-    Serial.print("menuCounter > "); Serial.println(menuCounter);
-    Serial.print("subMenuGate > "); Serial.println(subMenuGate);
-    Serial.println();
-
     delay(300);
     while(!digitalRead(upButton));
   }
@@ -152,26 +140,29 @@ void loop()
   // Main menu/execution
   if (!digitalRead(selectButton)){
     screenDateTimeView = false;
-    if(supplyWaterGate == true && supplyWaterCounter == 1){
+    if(supplyWaterGate == true && supplyWaterCounter == 1 && screenDateTimeView == false){
+      // screenDateTimeView = false;
         executeWaterSupplyAction();
         supplyWaterGate = false;
-        Serial.print("yes");
+        Serial.print("2"); Serial.print(supplyWaterGate); Serial.println();
         // updateMainMenu();
     }
-    if (supplyWaterGate==true && supplyWaterCounter == 2){
+    if (supplyWaterGate==true && supplyWaterCounter == 2 && screenDateTimeView == false){
+        // screenDateTimeView = false;
         supplyWaterCounter = 1;
         supplyWaterGate = false;
         lcd.clear();
-        Serial.print("yes");
-        // screenDateTimeView = true;
+        Serial.print("3"); Serial.print(supplyWaterGate); Serial.println();
+        screenDateTimeView = true;
         // updateMainMenu();
     }
-    if (menuCounter == 2){
+    if (menuCounter == 2 && screenDateTimeView == false){
         menuGate = false;
         subMenuGate = true;
+        Serial.print("4"); Serial.print(supplyWaterGate); Serial.println();
     }
 
-    if(subMenuCounter == 0 && menuCounter == 2){
+    if(subMenuCounter == 0 && menuCounter == 2 && screenDateTimeView == false){
         menuCounter = 1;
         subMenuCounter = 1;
         menuGate = true;
@@ -180,23 +171,26 @@ void loop()
         resistToCall_addSlot = true;
         resistToCall_showAll = true;
         backToMainMenu();
-        Serial.println("This");
+        Serial.println("5");
     }
-    else if (subMenuGate == true){
+    else if (subMenuGate == true && screenDateTimeView == false){
         updateSubmenu();
         executeSubMenuAction();
         updateSubmenu();
+        Serial.print("6");
     }
-    else if (menuGate == true){
-        executeMainMenuAction();    
-        updateMainMenu();
+    else if (menuGate == true && screenDateTimeView == false){
+        executeMainMenuAction();
+        updateMainMenu();    
+        // screenDateTimeView = true;
+        Serial.print("7"); Serial.print(supplyWaterGate); Serial.println();
     }
     
-    Serial.print("SubMenuCounter > "); Serial.println(subMenuCounter);
-    Serial.print("menuGate > "); Serial.println(menuGate);
+    // Serial.print("SubMenuCounter > "); Serial.println(subMenuCounter);
+    // Serial.print("menuGate > "); Serial.println(menuGate);
     Serial.print("menuCounter > "); Serial.println(menuCounter);
-    Serial.print("subMenuGate > "); Serial.println(subMenuGate);
-    Serial.println();
+    // Serial.print("subMenuGate > "); Serial.println(subMenuGate);
+    // Serial.println();
 
     delay(300);
     while (!digitalRead(selectButton));
@@ -204,6 +198,7 @@ void loop()
 
   // Water supply button
   if(!digitalRead(waterSupplyButton)){ 
+    supplyWaterGate = true;
     updateWaterSupplyMenu();
     delay(300);
     while (!digitalRead(waterSupplyButton));
@@ -314,7 +309,6 @@ void updateSubmenu(){
       case 5:
         subMenuCounter = 4;
         break;
-
     }
 }
 
@@ -349,6 +343,7 @@ void updateWaterSupplyMenu(){
     case 3:
        supplyWaterCounter = 2;
        break;
+  screenDateTimeView = false;
   }  
 }
 
@@ -356,10 +351,7 @@ void updateWaterSupplyMenu(){
 ////////////////////////// Actions
 
 void executeMainMenuAction(){
-    if(resistToCall_showAll == true){
         showAll();     
-    }
-    resistToCall_showAll = false;
 }
 
 void executeSubMenuAction() {
@@ -407,6 +399,7 @@ void backToMainMenu(){
 void showAll() {
   lcd.clear();
   lcd.print("Show all");
+  screenDateTimeView == true;
   delay(1500);
 }
 void addSlot() {
@@ -445,5 +438,5 @@ void waterSupply(){
     lcd.print("Only __ secs");
     delay(5000);
     lcd.clear();
-    // screenDateTimeView == true;
+    screenDateTimeView == true;
 }
