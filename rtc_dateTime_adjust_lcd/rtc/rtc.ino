@@ -63,7 +63,10 @@ void setup() {
   lcd.clear();
 }
 
+int updateDateTimeMenuCounter = 1;
 bool dateTimeView = true;
+
+bool setDateTimeOn = false;
 
 char Time[]     = "TIME:  :  :  ";
 char Calendar[] = "DATE:  /  /20  ";
@@ -72,35 +75,77 @@ byte i, second, minute, hour, date, month, year;
  
 void loop() {
   if(dateTimeView == true){
-      openScreenView();
+      DateTime now = rtc.now();
+      openScreenView(now);
   }
+    
+  // Up/Right Button
+  if (!digitalRead(upButton)){
+    if(updateDateTimeMenuCounter == 2 &&  dateTimeView == false){
+        updateDateTimeMenuCounter--;
+        updateDateTimeMenu();
+        // dateTimeView = true;
+    }
+    else if(updateDateTimeMenuCounter == 1 &&  dateTimeView == false){
+        updateDateTimeMenuCounter--;
+        updateDateTimeMenu();
+    }
+
+    delay(300);
+    while(!digitalRead(upButton));
+  }
+
+  // Down/Left Button
+  if(!digitalRead(downButton)){
+    if(updateDateTimeMenuCounter == 2 &&  dateTimeView == false){
+        updateDateTimeMenuCounter++;
+        // updateDateTimeMenuCounter = 1;
+        // lcd.clear();
+        // dateTimeView = true;
+        updateDateTimeMenu();
+    }
+    else if(updateDateTimeMenuCounter == 1 &&  dateTimeView == false){
+        updateDateTimeMenuCounter++;
+        updateDateTimeMenu();
+    }
+
+
+      delay(300);
+    while (!digitalRead(downButton));
+  }
+  
   if(!digitalRead(selectButton)){                           // If button (pin #8) is pressed
-      dateTimeView = false;
-      i = 0;
-      hour   = edit(5, 0, hour);
-      minute = edit(8, 0, minute);
-      date   = edit(5, 1, date);
-      month  = edit(8, 1, month);
-      year   = edit(13, 1, year);
-      // Convert decimal to BCD
-      minute = ((minute / 10) << 4) + (minute % 10);
-      hour = ((hour / 10) << 4) + (hour % 10);
-      date = ((date / 10) << 4) + (date % 10);
-      month = ((month / 10) << 4) + (month % 10);
-      year = ((year / 10) << 4) + (year % 10);
-      // End conversion
-      // Write data to DS1307 RTC
-      Wire.beginTransmission(0x68);               // Start I2C protocol with DS1307 address
-      Wire.write(0);                              // Send register address
-      Wire.write(0);                              // Reset sesonds and start oscillator
-      Wire.write(minute);                         // Write minute
-      Wire.write(hour);                           // Write hour
-      Wire.write(1);                              // Write day (not used)
-      Wire.write(date);                           // Write date
-      Wire.write(month);                          // Write month
-      Wire.write(year);                           // Write year
-      Wire.endTransmission();                     // Stop transmission and release the I2C bus
-      delay(200);                                 // Wait 200ms
+    lcd.clear();
+    dateTimeView = false;
+    updateDateTimeMenu();
+    if(setDateTimeOn == true){
+        setDateTime();
+    }
+    //   i = 0;
+    //   hour   = edit(5, 0, hour);
+    //   minute = edit(8, 0, minute);
+    //   date   = edit(5, 1, date);
+    //   month  = edit(8, 1, month);
+    //   year   = edit(13, 1, year);
+    //   // Convert decimal to BCD
+    //   minute = ((minute / 10) << 4) + (minute % 10);
+    //   hour = ((hour / 10) << 4) + (hour % 10);
+    //   date = ((date / 10) << 4) + (date % 10);
+    //   month = ((month / 10) << 4) + (month % 10);
+    //   year = ((year / 10) << 4) + (year % 10);
+    //   // End conversion
+    //   // Write data to DS1307 RTC
+    //   Wire.beginTransmission(0x68);               // Start I2C protocol with DS1307 address
+    //   Wire.write(0);                              // Send register address
+    //   Wire.write(0);                              // Reset sesonds and start oscillator
+    //   Wire.write(minute);                         // Write minute
+    //   Wire.write(hour);                           // Write hour
+    //   Wire.write(1);                              // Write day (not used)
+    //   Wire.write(date);                           // Write date
+    //   Wire.write(month);                          // Write month
+    //   Wire.write(year);                           // Write year
+    //   Wire.endTransmission();                     // Stop transmission and release the I2C bus
+    //   delay(200);                                 // Wait 200ms
     }
 }
 
@@ -238,6 +283,32 @@ byte edit(byte x, byte y, byte parameter){
 }
 
 void setDateTime(){
+     i = 0;
+      hour   = edit(5, 0, hour);
+      minute = edit(8, 0, minute);
+      date   = edit(5, 1, date);
+      month  = edit(8, 1, month);
+      year   = edit(13, 1, year);
+      // Convert decimal to BCD
+      minute = ((minute / 10) << 4) + (minute % 10);
+      hour = ((hour / 10) << 4) + (hour % 10);
+      date = ((date / 10) << 4) + (date % 10);
+      month = ((month / 10) << 4) + (month % 10);
+      year = ((year / 10) << 4) + (year % 10);
+      // End conversion
+      // Write data to DS1307 RTC
+      Wire.beginTransmission(0x68);               // Start I2C protocol with DS1307 address
+      Wire.write(0);                              // Send register address
+      Wire.write(0);                              // Reset sesonds and start oscillator
+      Wire.write(minute);                         // Write minute
+      Wire.write(hour);                           // Write hour
+      Wire.write(1);                              // Write day (not used)
+      Wire.write(date);                           // Write date
+      Wire.write(month);                          // Write month
+      Wire.write(year);                           // Write year
+      Wire.endTransmission();                     // Stop transmission and release the I2C bus
+      delay(200);    
+
     Wire.beginTransmission(0x68);                 // Start I2C protocol with DS1307 address
     Wire.write(0);                                // Send register address
     Wire.endTransmission(false);                  // I2C restart
