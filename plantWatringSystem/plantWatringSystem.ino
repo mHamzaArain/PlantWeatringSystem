@@ -762,12 +762,10 @@ void openScreenView(DateTime that){
   lcd.print(":");
   lcd.print(that.second());
   if(that.isPM()==0) {
-    lcd.print(" ");
-    lcd.print("PM");
+    lcd.print(" AM");
   }
   else{
-    lcd.print(" ");
-    lcd.print("AM");
+    lcd.print(" PM");
   }
 }
 
