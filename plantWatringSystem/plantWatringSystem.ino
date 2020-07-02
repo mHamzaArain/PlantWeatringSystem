@@ -1,7 +1,7 @@
 /** 
 @title: Plant Watering System using RTC 
 @author: Muhammad Hamza Hanif
-@version: 0.1v
+@version: 0.4v
 @github: 
 
 Liecense: GNU
@@ -112,8 +112,10 @@ int supplyWaterSecs = 15;  // Supply water in seconds
 
 // Schedule of water supply
 bool morning7AM = true;
-bool evening5PM = false;
+bool morning7AMsupplied = false;
 
+bool evening5PM = false;
+bool evening5PMsupplied = false;
 
 // *********************** Set DateTime variables  
 char Time[]     = "TIME:  :  :  ";
@@ -131,18 +133,23 @@ void loop() {
   // *********************** Watering in scheduled time
   // Morning time 7:00 AM
   if(morning7AM == true){
-    if(now.hour() == 7 && now.minute() == 0){
-      delay(60000);
+    if(now.hour() == 7 && now.minute() == 0 && morning7AMsupplied == false){
+      morning7AMsupplied = true;
       waterSupply();
     }
   }
 
   // Evening time at 5:00 PM
-  else if(evening5PM == false){
-    if(now.hour() == 17 && now.minute() == 0){
-      delay(60000);
+  else if(evening5PM == true){
+    if(now.hour() == 17 && now.minute() == 0 && evening5PMsupplied == false){
+      evening5PMsupplied = true;
       waterSupply();
     }
+  }
+
+  if(now.hour() == 23){
+    evening5PMsupplied = false;
+    morning7AMsupplied = false;
   }
 
   // *********************** Button handling
