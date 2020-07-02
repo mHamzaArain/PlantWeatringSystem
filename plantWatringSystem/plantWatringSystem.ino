@@ -131,14 +131,16 @@ void loop() {
   // *********************** Watering in scheduled time
   // Morning time 7:00 AM
   if(morning7AM == true){
-    if(now.hour() == 7 && now.isPM() == 0){
+    if(now.hour() == 7 && now.minute() == 0){
+      delay(60000);
       waterSupply();
     }
   }
 
   // Evening time at 5:00 PM
   else if(evening5PM == false){
-    if(now.hour() == 17 && now.isPM() == 1){
+    if(now.hour() == 17 && now.minute() == 0){
+      delay(60000);
       waterSupply();
     }
   }
@@ -756,16 +758,17 @@ void openScreenView(DateTime that){
  
   // Time
   lcd.setCursor(0,1);
-  lcd.print(that.hour());
+  lcd.print(that. twelveHour());
   lcd.print(":");
   lcd.print(that.minute());
   lcd.print(":");
   lcd.print(that.second());
-  if(that.isPM()==0) {
-    lcd.print(" AM");
-  }
-  else{
+  lcd.setCursor(8, 1);
+  if(that.isPM()==1) {
     lcd.print(" PM");
+  }
+  else if(that.isPM()==0){
+    lcd.print(" AM");
   }
 }
 
