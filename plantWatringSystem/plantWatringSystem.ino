@@ -108,7 +108,7 @@ bool supplyWaterGate = false;    // supplyWater functionality
 bool lcdBacklight = true;        // backlight functionality
 
 // Supply schedule time
-int supplyWaterSecs = 15;  // Supply water in seconds
+int supplyWaterSecs = 30;  // Supply water in seconds
 
 // Schedule of water supply
 bool morning7AM = true;
